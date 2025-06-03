@@ -12,5 +12,14 @@ Route::prefix('v1')
         Route::apiResource('schools', SchoolController::class);
 
         Route::apiResource('students', StudentController::class);
-        Route::apiResource('attendances', AttendanceController::class);             // teachers only
+
+        Route::delete('students/{student}',
+            [StudentController::class, 'delete'])
+            ->name('students.delete');
+
+        Route::delete('students/{student}/force',
+            [StudentController::class, 'destroy'])
+            ->name('students.destroy');
+
+        Route::apiResource('attendances', AttendanceController::class);
     });

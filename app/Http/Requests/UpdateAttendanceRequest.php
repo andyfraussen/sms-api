@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Attendance;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreAttendanceRequest extends FormRequest
+class UpdateAttendanceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,10 +23,7 @@ class StoreAttendanceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'student_id' => ['required','exists:students,id'],
-            'date'       => ['required','date'],
-            'status'     => ['required','in:present,absent,late,excused'],
-            'comment'    => ['nullable','string','max:255'],
+            //
         ];
     }
 }
