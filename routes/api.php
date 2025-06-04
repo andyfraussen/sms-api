@@ -21,5 +21,12 @@ Route::prefix('v1')
             [StudentController::class, 'destroy'])
             ->name('students.destroy');
 
+        Route::get('students/trashed', [StudentController::class, 'trashed'])
+            ->name('students.trashed');
+
+        Route::post('students/{student}/restore', [StudentController::class, 'restore'])
+            ->withTrashed()
+            ->name('students.restore');
+
         Route::apiResource('attendances', AttendanceController::class);
     });

@@ -81,4 +81,34 @@ class StudentController extends Controller
         $student->forceDelete();          // hard delete
         return response()->noContent();   // 204
     }
+
+    /**
+     * @throws AuthorizationException
+     */
+    public function trashed(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        $this->authorize('viewAny', Student::class); // or a dedicated ability
+
+        $students = Student::onlyTrashed()
+            ->latest('deleted_at');
+
+        return StudentResource::collection(
+            Student::with(['schoolClass.grade','parents'])
+                ->paginate(15)
+        );
+    }
+
+    /**
+     * @throws AuthorizationException
+     */
+    public function restore(Student $student): \Illuminate\Http\JsonResponse
+    {
+        $this->authorize('restore', $student);
+
+        $student->restore();
+
+        return (new StudentResource($student))
+            ->response()
+            ->setStatusCode(200);                     // OK
+    }
 }

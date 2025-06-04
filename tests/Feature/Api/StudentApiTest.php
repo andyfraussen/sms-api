@@ -44,7 +44,7 @@ class StudentApiTest extends ApiTestCase
         $student = Student::factory()->create();
 
         $this->actingAsRole('parent')
-            ->patchJson("/api/v1/students/{$student->id}", ['first_name'=>'x'])
+            ->patchJson("/api/v1/students/{$student->id}", ['first_name' => 'x'])
             ->assertForbidden();
     }
 
@@ -53,13 +53,12 @@ class StudentApiTest extends ApiTestCase
         $student = Student::factory()->create();
 
         $this->actingAsRole('student')
-            ->patchJson("/api/v1/students/{$student->id}", ['first_name'=>'x'])
+            ->patchJson("/api/v1/students/{$student->id}", ['first_name' => 'x'])
             ->assertForbidden();
     }
 
     public function test_admin_can_soft_delete_student(): void
     {
-
         $student = Student::factory()->create();
 
         $this->actingAsRole('admin')
@@ -78,5 +77,49 @@ class StudentApiTest extends ApiTestCase
             ->assertNoContent();
 
         $this->assertDatabaseMissing('students', ['id' => $student->id]);
+    }
+
+    public function test_admin_can_list_trashed_students(): void
+    {
+        $trashed = Student::factory()->count(2)->create();
+        Student::destroy($trashed->pluck('id'));
+
+        $this->actingAsRole('admin')
+            ->getJson(route('students.trashed'))
+            ->assertOk()
+            ->assertJsonCount(2, 'data');
+    }
+
+    public function test_non_admin_cannot_list_trashed_students(): void
+    {
+        $this->actingAsRole('parent')
+            ->getJson(route('students.trashed'))
+            ->assertForbidden();
+    }
+
+    public function test_admin_can_restore_a_student(): void
+    {
+        $student = Student::factory()->create();
+        $student->delete();
+
+        $this->actingAsRole('admin')
+            ->postJson(route('students.restore', $student))
+            ->assertOk()
+            ->assertJsonPath('data.id', $student->id);
+
+        $this->assertDatabaseHas('students', [
+            'id' => $student->id,
+            'deleted_at' => null,
+        ]);
+    }
+
+    public function test_non_admin_cannot_restore_student(): void
+    {
+        $student = Student::factory()->create();
+        $student->delete();
+
+        $this->actingAsRole('student')
+            ->postJson(route('students.restore', $student))
+            ->assertForbidden();
     }
 }
