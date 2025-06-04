@@ -3,48 +3,30 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\SchoolResource;
 use App\Models\School;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 
 class SchoolController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * @throws AuthorizationException
      */
-    public function index()
+    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        //
+        $this->authorize('viewAny', School::class);               // <- policy
+        return SchoolResource::collection(
+            School::with('grades')->paginate(10)
+        );
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @throws AuthorizationException
      */
-    public function store(Request $request)
+    public function show(School $school): SchoolResource
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(School $school)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, School $school)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(School $school)
-    {
-        //
+        $this->authorize('view', $school);
+        return new SchoolResource($school->load('grades.subjects'));
     }
 }

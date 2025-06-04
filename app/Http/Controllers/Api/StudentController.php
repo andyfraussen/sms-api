@@ -3,48 +3,109 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreStudentRequest;
+use App\Http\Requests\UpdateStudentRequest;
+use App\Http\Resources\StudentResource;
 use App\Models\Student;
-use Illuminate\Http\Request;
+use Illuminate\Auth\Access\AuthorizationException;
 
 class StudentController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * @throws AuthorizationException
      */
     public function index()
     {
-        //
+        $this->authorize('viewAny', Student::class);
+
+        return StudentResource::collection(
+            Student::with(['schoolClass.grade','parents'])
+                ->paginate(15)
+        );
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @throws AuthorizationException
      */
-    public function store(Request $request)
+    public function show(Student $student): StudentResource
     {
-        //
+        $this->authorize('view', $student);
+        return new StudentResource($student->loadMissing(['classes','parents']));
     }
 
     /**
-     * Display the specified resource.
+     * @throws AuthorizationException
      */
-    public function show(Student $student)
+    public function store(StoreStudentRequest $request): \Illuminate\Http\JsonResponse
     {
-        //
+        $this->authorize('create', Student::class);
+
+        $student = Student::create($request->validated());
+        return (new StudentResource($student))
+            ->response()
+            ->setStatusCode(201);
     }
 
     /**
-     * Update the specified resource in storage.
+     * @throws AuthorizationException
      */
-    public function update(Request $request, Student $student)
+    public function update(UpdateStudentRequest $request, Student $student): \Illuminate\Http\JsonResponse
     {
-        //
+        $this->authorize('update', $student);
+
+        $student->update($request->validated());
+
+        return (new StudentResource($student))
+            ->response()
+            ->setStatusCode(200);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @throws AuthorizationException
      */
-    public function destroy(Student $student)
+    public function destroy(Student $student): \Illuminate\Http\Response
     {
-        //
+        $this->authorize('delete', $student);
+
+        $student->delete();
+        return response()->noContent();
+    }
+
+    /**
+     * @throws AuthorizationException
+     */
+    public function delete(Student $student): \Illuminate\Http\Response
+    {
+        $this->authorize('forceDelete', $student);   // stricter policy
+
+        $student->forceDelete();          // hard delete
+        return response()->noContent();   // 204
+    }
+
+    /**
+     * @throws AuthorizationException
+     */
+    public function trashed(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        $this->authorize('viewAny', Student::class);
+
+        return StudentResource::collection(
+            Student::onlyTrashed()->with(['schoolClass.grade','parents'])
+                ->paginate(15)
+        );
+    }
+
+    /**
+     * @throws AuthorizationException
+     */
+    public function restore(Student $student): \Illuminate\Http\JsonResponse
+    {
+        $this->authorize('restore', $student);
+
+        $student->restore();
+
+        return (new StudentResource($student))
+            ->response()
+            ->setStatusCode(200);
     }
 }

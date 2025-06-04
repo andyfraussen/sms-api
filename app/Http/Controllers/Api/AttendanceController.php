@@ -3,48 +3,39 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreAttendanceRequest;
+use App\Http\Resources\AttendanceResource;
 use App\Models\Attendance;
-use Illuminate\Http\Request;
+use Illuminate\Auth\Access\AuthorizationException;
 
 class AttendanceController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * @throws AuthorizationException
      */
-    public function index()
+    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        //
+        $this->authorize('viewAny', Attendance::class);
+
+        $query = Attendance::with(['student.schoolClass.grade'])
+            ->when(request('date'), fn ($q, $date) => $q->whereDate('date', $date));
+
+        return AttendanceResource::collection($query->paginate(20));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @throws AuthorizationException
      */
-    public function store(Request $request)
+    public function store(StoreAttendanceRequest $request): \Illuminate\Http\JsonResponse
     {
-        //
-    }
+        $this->authorize('create', Attendance::class);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Attendance $attendance)
-    {
-        //
-    }
+        $attendance = Attendance::create($request->validated() + [
+                'recorded_by' => $request->user()->id,
+            ]);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Attendance $attendance)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Attendance $attendance)
-    {
-        //
+        return (new AttendanceResource($attendance->load('student')))
+            ->response()
+            ->setStatusCode(201);
     }
 }

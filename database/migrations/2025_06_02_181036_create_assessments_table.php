@@ -20,6 +20,7 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
             $table->string('name');
+            $table->text('comments')->nullable();
             $table->enum('type', ['quiz', 'test', 'exam', 'assignment'])->default('test');
             $table->unsignedSmallInteger('score');
             $table->unsignedSmallInteger('max_score')->default(100);

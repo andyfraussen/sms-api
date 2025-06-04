@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\AssessmentType;
 use App\Models\Assessment;
 use App\Models\Student;
 use App\Models\Subject;
@@ -18,18 +19,16 @@ class AssessmentFactory extends Factory
 
     public function definition(): array
     {
-        $type  = $this->faker->randomElement(['quiz', 'test', 'exam', 'assignment']);
-        $score = $this->faker->numberBetween(0, 100);
-
         return [
-            'student_id'  => Student::factory(),
-            'subject_id'  => Subject::factory(),
-            'name'        => ucfirst($type) . ' #' . $this->faker->numberBetween(1, 3),
-            'type'        => $type,
-            'score'       => $score,
+            'student_id' => Student::factory(),
+            'subject_id' => Subject::factory(),
+            'type' => AssessmentType::cases()[array_rand(AssessmentType::cases())],
+            'score' => $this->faker->randomFloat(1, 0, 100),
+            'date' => $this->faker->date(),
+            'comments' => $this->faker->sentence,
+            'name' => $this->faker->title(),
+            'graded_by' => User::factory(),
             'max_score'   => 100,
-            'graded_by'   => User::factory(),
-            'date'        => $this->faker->dateTimeBetween('-1 month', 'now')->format('Y-m-d'),
         ];
     }
 }

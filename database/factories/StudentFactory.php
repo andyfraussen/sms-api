@@ -20,10 +20,10 @@ class StudentFactory extends Factory
         return [
             'school_class_id' => SchoolClass::factory(),
             'registration_no' => strtoupper(Str::random(10)),
-            'first_name'      => $this->faker->firstName,
-            'last_name'       => $this->faker->lastName,
-            'date_of_birth'   => $this->faker->dateTimeBetween('-20 years', '-5 years')->format('Y-m-d'),
-            'gender'          => $this->faker->randomElement(Gender::cases())->value,
+            'first_name' => $this->faker->firstName,
+            'last_name' => $this->faker->lastName,
+            'date_of_birth' => $this->faker->dateTimeBetween('-20 years', '-5 years')->format('Y-m-d'),
+            'gender' => $this->faker->randomElement(Gender::cases())->value,
         ];
     }
 }
