@@ -23,7 +23,7 @@ class AttendanceApiTest extends ApiTestCase
             ->assertCreated();
     }
 
-    public function test_admin_cannot_mark_attendance(): void
+    public function test_admin_can_mark_attendance(): void
     {
         $student = Student::factory()->create();
 
@@ -35,7 +35,7 @@ class AttendanceApiTest extends ApiTestCase
 
         $this->actingAsRole('admin')
             ->postJson('/api/v1/attendances', $payload)
-            ->assertForbidden();
+            ->assertCreated();
     }
 }
 

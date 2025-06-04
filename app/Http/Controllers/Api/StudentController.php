@@ -63,7 +63,7 @@ class StudentController extends Controller
     /**
      * @throws AuthorizationException
      */
-    public function delete(Student $student): \Illuminate\Http\Response
+    public function destroy(Student $student): \Illuminate\Http\Response
     {
         $this->authorize('delete', $student);
 
@@ -74,7 +74,7 @@ class StudentController extends Controller
     /**
      * @throws AuthorizationException
      */
-    public function destroy(Student $student): \Illuminate\Http\Response
+    public function delete(Student $student): \Illuminate\Http\Response
     {
         $this->authorize('forceDelete', $student);   // stricter policy
 
@@ -87,13 +87,10 @@ class StudentController extends Controller
      */
     public function trashed(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $this->authorize('viewAny', Student::class); // or a dedicated ability
-
-        $students = Student::onlyTrashed()
-            ->latest('deleted_at');
+        $this->authorize('viewAny', Student::class);
 
         return StudentResource::collection(
-            Student::with(['schoolClass.grade','parents'])
+            Student::onlyTrashed()->with(['schoolClass.grade','parents'])
                 ->paginate(15)
         );
     }
@@ -109,6 +106,6 @@ class StudentController extends Controller
 
         return (new StudentResource($student))
             ->response()
-            ->setStatusCode(200);                     // OK
+            ->setStatusCode(200);
     }
 }

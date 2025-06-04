@@ -29,7 +29,7 @@ class AttendancePolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole('teacher');
+        return $user->hasRole(['admin', 'teacher']);
     }
 
     /**

@@ -62,7 +62,7 @@ class StudentApiTest extends ApiTestCase
         $student = Student::factory()->create();
 
         $this->actingAsRole('admin')
-            ->deleteJson(route('students.delete', $student))
+            ->deleteJson(route('students.destroy', $student))
             ->assertNoContent();
 
         $this->assertSoftDeleted('students', ['id' => $student->id]);
@@ -73,7 +73,7 @@ class StudentApiTest extends ApiTestCase
         $student = Student::factory()->create();
 
         $this->actingAsRole('admin')
-            ->deleteJson(route('students.destroy', $student))
+            ->deleteJson(route('students.delete', $student))
             ->assertNoContent();
 
         $this->assertDatabaseMissing('students', ['id' => $student->id]);
