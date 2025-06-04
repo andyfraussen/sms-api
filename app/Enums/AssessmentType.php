@@ -3,8 +3,8 @@ namespace App\Enums;
 
 enum AssessmentType: string
 {
-    case Quiz = 'quiz';
-    case Test = 'test';
-    case Exam = 'exam';
-    case Assignment = 'assignment';
+    case QUIZ = 'quiz';
+    case TEST = 'test';
+    case EXAM = 'exam';
+    case ASSIGNMENT = 'assignment';
 }

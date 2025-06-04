@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AssessmentController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\SchoolController;
 use App\Http\Controllers\Api\StudentController;
@@ -24,4 +25,6 @@ Route::prefix('v1')
         Route::apiResource('students', StudentController::class);
 
         Route::apiResource('attendances', AttendanceController::class);
+
+        Route::apiResource('assessments', AssessmentController::class);
     });

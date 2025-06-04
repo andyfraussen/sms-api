@@ -9,10 +9,4 @@ use Tests\Feature\ApiTestCase;
 abstract class SchoolApiTest extends ApiTestCase
 {
     use RefreshDatabase;
-
-    protected function actingAsRole(string $role): self
-    {
-        $user = User::factory()->create()->assignRole($role);
-        return $this->actingAs($user, 'sanctum');
-    }
 }
