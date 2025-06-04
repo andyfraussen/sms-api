@@ -112,7 +112,7 @@ class AssessmentApiTest extends ApiTestCase
             ->assertJsonPath('data.score', 69);
     }
 
-    public function test_different_teacher_cannot_create_assessment(): void
+    public function test_different_teacher_cannot_update_assessment(): void
     {
         $teacher = User::factory()->create();
         $assessment = Assessment::factory()->create(['graded_by' => $teacher]);
@@ -120,6 +120,28 @@ class AssessmentApiTest extends ApiTestCase
         $differentTeacher = User::factory()->create();
 
         $this->actingAs($differentTeacher)
+            ->patchJson("/api/v1/assessments/{$assessment->id}", $payload)
+            ->assertForbidden();
+    }
+
+    public function test_student_cannot_update_assessment(): void
+    {
+        $teacher = User::factory()->create();
+        $assessment = Assessment::factory()->create(['graded_by' => $teacher]);
+        $payload = ['score' => 69];
+
+        $this->actingAsRole('student')
+            ->patchJson("/api/v1/assessments/{$assessment->id}", $payload)
+            ->assertForbidden();
+    }
+
+    public function test_parent_cannot_update_assessment(): void
+    {
+        $teacher = User::factory()->create();
+        $assessment = Assessment::factory()->create(['graded_by' => $teacher]);
+        $payload = ['score' => 69];
+
+        $this->actingAsRole('parent')
             ->patchJson("/api/v1/assessments/{$assessment->id}", $payload)
             ->assertForbidden();
     }
