@@ -53,6 +53,7 @@ class School
      * @var Collection<int, Grade>
      */
     #[ORM\OneToMany(targetEntity: Grade::class, mappedBy: 'school')]
+    #[Groups(['school:read'])]
     private Collection $grades;
 
     /**

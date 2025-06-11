@@ -7,9 +7,14 @@ use App\Repository\GradeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: GradeRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['grade:read']],
+    denormalizationContext: ['groups' => ['grade:write']]
+)]
 class Grade
 {
     #[ORM\Id]
@@ -18,10 +23,13 @@ class Grade
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Groups(['grade:read', 'grade:write'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'grades')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['grade:read', 'grade:write'])]
     private ?School $school = null;
 
     /**

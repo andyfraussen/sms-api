@@ -3,12 +3,16 @@
 namespace App\Tests\Api;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use App\Entity\School;
+use App\Factory\GradeFactory;
+use App\Factory\SchoolFactory;
+use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
 class SchoolTest extends ApiTestCase
 {
     use ResetDatabase;
-
+    use Factories;
     public function testCreateSchool(): void
     {
         $client = self::createClient();
@@ -29,6 +33,19 @@ class SchoolTest extends ApiTestCase
         ]);
     }
 
+    public function testDuplicateSchoolNameValidation(): void
+    {
+        $client = self::createClient();
+        SchoolFactory::createOne(['name' => 'Unique School']);
+
+        $client->request('POST', '/schools', [
+            'json' => ['name' => 'Unique School'],
+            'headers' => ['Content-Type' => 'application/ld+json'],
+        ]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertJsonContains(['@type' => 'ConstraintViolation']);
+    }
 
     public function testGetSchoolCollection(): void
     {
@@ -283,5 +300,25 @@ class SchoolTest extends ApiTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testSchoolIncludesGradesInSerialization(): void
+    {
+        $client = self::createClient();
+
+        $school = SchoolFactory::createOne();
+        GradeFactory::createMany(2, ['school' => $school]);
+
+        $iri = $this->findIriBy(School::class, ['name' => $school->getName()]);
+
+        $client->request('GET', $iri, [
+            'headers' => ['Accept' => 'application/ld+json'],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $data = $client->getResponse()->toArray();
+
+        $this->assertArrayHasKey('grades', $data);
+        $this->assertCount(2, $data['grades']);
     }
 }
