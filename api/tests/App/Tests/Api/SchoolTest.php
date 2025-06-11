@@ -3,6 +3,7 @@
 namespace App\Tests\Api;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use App\Entity\Grade;
 use App\Entity\School;
 use App\Factory\GradeFactory;
 use App\Factory\SchoolFactory;
@@ -321,4 +322,22 @@ class SchoolTest extends ApiTestCase
         $this->assertArrayHasKey('grades', $data);
         $this->assertCount(2, $data['grades']);
     }
+
+    public function testDeletingSchoolAlsoDeletesGrades(): void
+    {
+        $client = self::createClient();
+
+        $school = SchoolFactory::createOne();
+        $grade = GradeFactory::createOne(['school' => $school]);
+
+        $schoolIri = $this->findIriBy(School::class, ['name' => $school->getName()]);
+        $gradeIri = $this->findIriBy(Grade::class, ['name' => $grade->getName()]);
+
+        $client->request('DELETE', $schoolIri);
+        $this->assertResponseStatusCodeSame(204);
+
+        $client->request('GET', $gradeIri, ['headers' => ['Accept' => 'application/ld+json']]);
+        $this->assertResponseStatusCodeSame(404);
+    }
+
 }

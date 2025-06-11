@@ -28,7 +28,7 @@ class Grade
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'grades')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Groups(['grade:read', 'grade:write'])]
     private ?School $school = null;
 
