@@ -13,7 +13,11 @@ abstract class CustomApiTest extends ApiTestCase
     use Factories;
     protected function setUser(string $typeOfPerson = '', array $userRoles = []): string
     {
-        $person = TeacherFactory::createOne();
+        if ($typeOfPerson === 'teacher') {
+            $person = TeacherFactory::createOne();
+        } else {
+            $person = TeacherFactory::createOne();
+        }
 
         $user = UserFactory::createOne([
             'person' => $person,

@@ -232,9 +232,8 @@ class SchoolTest extends CustomApiTest
     public function testDeletingSchoolAlsoDeletesGrades(): void
     {
         $school = SchoolFactory::createOne();
-        $schoolIri = $this->findIriBy(School::class, ['name' => $school->getName()]);;
 
-        $grade = GradeFactory::createOne(['school' => $schoolIri]);
+        $grade = GradeFactory::createOne(['school' => $school]);
 
         $schoolIri = $this->findIriBy(School::class, ['name' => $school->getName()]);
         $gradeIri = $this->findIriBy(Grade::class, ['name' => $grade->getName()]);

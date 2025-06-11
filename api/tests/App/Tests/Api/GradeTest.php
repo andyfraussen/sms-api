@@ -9,22 +9,18 @@ use App\Factory\SchoolFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
-class GradeTest extends ApiTestCase
+class GradeTest extends CustomApiTest
 {
     use ResetDatabase;
     use Factories;
 
     public function testCreateGrade(): void
     {
-        $client = self::createClient();
         $school = SchoolFactory::createOne();
         $schoolIri = $this->findIriBy(School::class, ['name' => $school->getName()]);
-        $client->request('POST', '/grades', [
-            'json' => [
-                'name' => 'Grade 1',
-                'school' => $schoolIri
-            ],
-            'headers' => ['Content-Type' => 'application/ld+json'],
+        $this->makeRequest('POST', '/grades', [
+            'name' => 'Grade 1',
+            'school' => $schoolIri
         ]);
 
         $this->assertResponseStatusCodeSame(201);
@@ -35,34 +31,24 @@ class GradeTest extends ApiTestCase
 
     public function testGetGradeCollection(): void
     {
-        $client = self::createClient();
         $school = SchoolFactory::createOne();
-        $schoolIri = $this->findIriBy(School::class, ['name' => $school->getName()]);
+        GradeFactory::createOne(['name' => 'Grade A', 'school' => $school]);
 
-        $client->request('POST', '/grades', [
-            'json' => ['name' => 'Grade A', 'school' => $schoolIri],
-            'headers' => ['Content-Type' => 'application/ld+json'],
-        ]);
-
-        $client->request('GET', '/grades', [
-            'headers' => ['Accept' => 'application/ld+json'],
-        ]);
-
+        $response = $this->makeRequest('GET', '/grades');
         $this->assertResponseIsSuccessful();
-        $grades = $client->getResponse()->toArray();
 
-        $this->assertGreaterThan(0, count($grades['hydra:member'] ?? []));
+        $data = $response->toArray();
+        $this->assertGreaterThan(0, count($data['hydra:member'] ?? []));
     }
 
     public function testCreateGradeValidationError(): void
     {
-        $client = self::createClient();
         $school = SchoolFactory::createOne();
         $schoolIri = $this->findIriBy(School::class, ['name' => $school->getName()]);
 
-        $client->request('POST', '/grades', [
-            'json' => ['name' => '', 'school' => $schoolIri],
-            'headers' => ['Content-Type' => 'application/ld+json'],
+        $this->makeRequest('POST', '/grades', [
+            'name' => '',
+            'school' => $schoolIri,
         ]);
 
         $this->assertResponseStatusCodeSame(422);
@@ -71,9 +57,8 @@ class GradeTest extends ApiTestCase
 
     public function testGetSingleGrade(): void
     {
-        $client = self::createClient();
         $grade = GradeFactory::createOne();
-        $client->request('GET', '/grades/' . $grade->getId());
+        $this->makeRequest('GET', '/grades/' . $grade->getId());
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains(['name' => $grade->getName()]);
@@ -81,12 +66,10 @@ class GradeTest extends ApiTestCase
 
     public function testPatchGrade(): void
     {
-        $client = self::createClient();
-        $grade = GradeFactory::createOne(['name' => 'Old Name']);
+        $grade = GradeFactory::createOne();
 
-        $client->request('PATCH', '/grades/' . $grade->getId(), [
-            'json' => ['name' => 'New Name'],
-            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+        $this->makeRequest('PATCH', '/grades/' . $grade->getId(), [
+            'name' => 'New Name',
         ]);
 
         $this->assertResponseIsSuccessful();
@@ -95,16 +78,12 @@ class GradeTest extends ApiTestCase
 
     public function testDeleteGrade(): void
     {
-        $client = self::createClient();
         $grade = GradeFactory::createOne();
 
-        $client->request('DELETE', '/grades/' . $grade->getId());
+        $this->makeRequest('DELETE', '/grades/' . $grade->getId());
         $this->assertResponseStatusCodeSame(204);
 
-        $client->request('GET', '/grades/' . $grade->getId(), [
-            'headers' => ['Accept' => 'application/ld+json'],
-        ]);
-
+        $this->makeRequest('GET', '/grades/' . $grade->getId());
         $this->assertResponseStatusCodeSame(301);
     }
 }

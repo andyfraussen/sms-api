@@ -40,7 +40,7 @@ class School
     /**
      * @var Collection<int, Grade>
      */
-    #[ORM\OneToMany(targetEntity: Grade::class, mappedBy: 'school')]
+    #[ORM\OneToMany(targetEntity: Grade::class, mappedBy: 'school', cascade: ['persist', 'remove'])]
     #[Groups(['school:read'])]
     private Collection $grades;
 
