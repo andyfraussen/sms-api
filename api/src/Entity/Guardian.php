@@ -10,12 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GuardianRepository::class)]
 #[ApiResource]
-class Guardian
+class Guardian extends Person
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     /**
      * @var Collection<int, Student>
@@ -29,18 +25,10 @@ class Guardian
     #[ORM\ManyToMany(targetEntity: School::class, inversedBy: 'guardians')]
     private Collection $schools;
 
-    #[ORM\OneToOne(mappedBy: 'guardianProfile', cascade: ['persist', 'remove'])]
-    private ?User $userProfile = null;
-
     public function __construct()
     {
         $this->students = new ArrayCollection();
         $this->schools = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     /**
@@ -90,28 +78,6 @@ class Guardian
     public function removeSchool(School $school): static
     {
         $this->schools->removeElement($school);
-
-        return $this;
-    }
-
-    public function getUserProfile(): ?User
-    {
-        return $this->userProfile;
-    }
-
-    public function setUserProfile(?User $userProfile): static
-    {
-        // unset the owning side of the relation if necessary
-        if ($userProfile === null && $this->userProfile !== null) {
-            $this->userProfile->setGuardianProfile(null);
-        }
-
-        // set the owning side of the relation if necessary
-        if ($userProfile !== null && $userProfile->getGuardianProfile() !== $this) {
-            $userProfile->setGuardianProfile($this);
-        }
-
-        $this->userProfile = $userProfile;
 
         return $this;
     }

@@ -10,12 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: StudentRepository::class)]
 #[ApiResource]
-class Student
+class Student extends Person
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\Column(length: 220)]
     private ?string $studentCode = null;
@@ -36,18 +32,10 @@ class Student
     #[ORM\OneToMany(targetEntity: Attendance::class, mappedBy: 'student')]
     private Collection $attendanceRecords;
 
-    #[ORM\OneToOne(mappedBy: 'studentProfile', cascade: ['persist', 'remove'])]
-    private ?User $userProfile = null;
-
     public function __construct()
     {
         $this->guardians = new ArrayCollection();
         $this->attendanceRecords = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function getStudentCode(): ?string
@@ -124,28 +112,6 @@ class Student
                 $attendanceRecord->setStudent(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getUserProfile(): ?User
-    {
-        return $this->userProfile;
-    }
-
-    public function setUserProfile(?User $userProfile): static
-    {
-        // unset the owning side of the relation if necessary
-        if ($userProfile === null && $this->userProfile !== null) {
-            $this->userProfile->setStudentProfile(null);
-        }
-
-        // set the owning side of the relation if necessary
-        if ($userProfile !== null && $userProfile->getStudentProfile() !== $this) {
-            $userProfile->setStudentProfile($this);
-        }
-
-        $this->userProfile = $userProfile;
 
         return $this;
     }

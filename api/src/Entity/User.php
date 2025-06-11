@@ -2,10 +2,14 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
+use App\Entity\Person;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -32,14 +36,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\OneToOne(inversedBy: 'userProfile', cascade: ['persist', 'remove'])]
-    private ?Student $studentProfile = null;
-
-    #[ORM\OneToOne(inversedBy: 'userProfile', cascade: ['persist', 'remove'])]
-    private ?Teacher $teacherProfile = null;
-
-    #[ORM\OneToOne(inversedBy: 'userProfile', cascade: ['persist', 'remove'])]
-    private ?Guardian $guardianProfile = null;
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    #[Groups(groups: ['user:read', 'user:write'])]
+    #[ApiProperty(readableLink: false, writableLink: false)]
+    #[Assert\NotNull]
+    private ?Person $person = null;
 
     public function getId(): ?int
     {
@@ -116,38 +117,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    public function getStudentProfile(): ?Student
+
+    public function getPerson(): ?Person
     {
-        return $this->studentProfile;
+        return $this->person;
     }
 
-    public function setStudentProfile(?Student $studentProfile): static
+    public function setPerson(?Person $person): static
     {
-        $this->studentProfile = $studentProfile;
+        if (null === $person && null !== $this->person) {
+            $this->person->setUser(null);
+        }
 
-        return $this;
-    }
+        if (null !== $person && $person->getUser() !== $this) {
+            $person->setUser($this);
+        }
 
-    public function getTeacherProfile(): ?Teacher
-    {
-        return $this->teacherProfile;
-    }
-
-    public function setTeacherProfile(?Teacher $teacherProfile): static
-    {
-        $this->teacherProfile = $teacherProfile;
-
-        return $this;
-    }
-
-    public function getGuardianProfile(): ?Guardian
-    {
-        return $this->guardianProfile;
-    }
-
-    public function setGuardianProfile(?Guardian $guardianProfile): static
-    {
-        $this->guardianProfile = $guardianProfile;
+        $this->person = $person;
 
         return $this;
     }

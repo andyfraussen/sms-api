@@ -10,13 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TeacherRepository::class)]
 #[ApiResource]
-class Teacher
+class Teacher extends Person
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     /**
      * @var Collection<int, School>
      */
@@ -35,19 +30,11 @@ class Teacher
     #[ORM\ManyToMany(targetEntity: Subject::class, inversedBy: 'teachers')]
     private Collection $subjects;
 
-    #[ORM\OneToOne(mappedBy: 'teacherProfile', cascade: ['persist', 'remove'])]
-    private ?User $userProfile = null;
-
     public function __construct()
     {
         $this->schools = new ArrayCollection();
         $this->classes = new ArrayCollection();
         $this->subjects = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     /**
@@ -118,28 +105,6 @@ class Teacher
     public function removeSubject(Subject $subject): static
     {
         $this->subjects->removeElement($subject);
-
-        return $this;
-    }
-
-    public function getUserProfile(): ?User
-    {
-        return $this->userProfile;
-    }
-
-    public function setUserProfile(?User $userProfile): static
-    {
-        // unset the owning side of the relation if necessary
-        if ($userProfile === null && $this->userProfile !== null) {
-            $this->userProfile->setTeacherProfile(null);
-        }
-
-        // set the owning side of the relation if necessary
-        if ($userProfile !== null && $userProfile->getTeacherProfile() !== $this) {
-            $userProfile->setTeacherProfile($this);
-        }
-
-        $this->userProfile = $userProfile;
 
         return $this;
     }
