@@ -5,11 +5,6 @@ namespace App\Entity;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\Post;
 use App\Repository\SchoolRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -22,13 +17,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\UniqueConstraint(columns: ['name'])]
 #[UniqueEntity(fields: ['name'], errorPath: 'name', ignoreNull: true)]
 #[ApiResource(
-    operations: [
-        new Post(),
-        new Get(),
-        new GetCollection(),
-        new Patch(),
-        new Delete(),
-    ],
     normalizationContext: ['groups' => ['school:read']],
     denormalizationContext: ['groups' => ['school:write']],
     order: ['name' => 'ASC']
