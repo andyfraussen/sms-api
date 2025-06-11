@@ -8,7 +8,7 @@ use App\Factory\UserFactory;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Zenstruck\Foundry\Test\Factories;
 
-abstract class CustomApiTest extends ApiTestCase
+class CustomApiTest extends ApiTestCase
 {
     use Factories;
     protected function setUser(string $typeOfPerson = '', array $userRoles = []): string
@@ -40,5 +40,12 @@ abstract class CustomApiTest extends ApiTestCase
             'headers' => $headers,
             'json' => $json,
         ]);
+    }
+
+    public function testApi(): void
+    {
+        $this->makeRequest('GET', '/');
+
+        $this->assertResponseIsSuccessful();
     }
 }

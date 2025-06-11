@@ -12,30 +12,30 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ClassGroupRepository::class)]
 #[ApiResource(
-    normalizationContext: ['groups' => ['classGroup:read']],
-    denormalizationContext: ['groups' => ['classGroup:write']]
+    normalizationContext: ['groups' => ['class_group:read']],
+    denormalizationContext: ['groups' => ['class_group:write']],
 )]
 class ClassGroup
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['classGroup:read'])]
+    #[Groups(['class_group:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['classGroup:read', 'classGroup:write'])]
+    #[Groups(['class_group:read', 'class_group:write'])]
     #[Assert\NotBlank]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'classGroups')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['classGroup:read', 'classGroup:write'])]
+    #[Groups(['class_group:read', 'class_group:write'])]
     private ?Grade $grade = null;
 
     #[ORM\ManyToOne(inversedBy: 'classGroups')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['classGroup:read', 'classGroup:write'])]
+    #[Groups(['class_group:read', 'class_group:write'])]
     private ?School $school = null;
 
     /**
@@ -56,11 +56,19 @@ class ClassGroup
     #[ORM\OneToMany(targetEntity: Attendance::class, mappedBy: 'classGroup')]
     private Collection $attendances;
 
+    /**
+     * @var Collection<int, Subject>
+     */
+    #[ORM\ManyToMany(targetEntity: Subject::class, mappedBy: 'classGroups')]
+    #[Groups(['class_group:read', 'class_group:write'])]
+    private Collection $subjects;
+
     public function __construct()
     {
         $this->students = new ArrayCollection();
         $this->teachers = new ArrayCollection();
         $this->attendances = new ArrayCollection();
+        $this->subjects = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -186,6 +194,33 @@ class ClassGroup
             if ($attendance->getClassGroup() === $this) {
                 $attendance->setClassGroup(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Subject>
+     */
+    public function getSubjects(): Collection
+    {
+        return $this->subjects;
+    }
+
+    public function addSubject(Subject $subject): static
+    {
+        if (!$this->subjects->contains($subject)) {
+            $this->subjects->add($subject);
+            $subject->addClassGroup($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSubject(Subject $subject): static
+    {
+        if ($this->subjects->removeElement($subject)) {
+            $subject->removeClassGroup($this);
         }
 
         return $this;
