@@ -107,7 +107,7 @@ class classGroupTest extends CustomApiTest
     {
         $this->makeRequest('POST', '/class_groups', [
             'name' => 'Invalid Links',
-            'school' => '/schools/999999',
+            'school' => '/schools/99999',
             'grade' => '/grades/999999',
         ]);
 
