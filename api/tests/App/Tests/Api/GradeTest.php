@@ -2,7 +2,6 @@
 
 namespace App\Tests\Api;
 
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\School;
 use App\Factory\GradeFactory;
 use App\Factory\SchoolFactory;
