@@ -2,22 +2,51 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Repository\SchoolRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SchoolRepository::class)]
-#[ApiResource]
+#[ORM\UniqueConstraint(columns: ['name'])]
+#[UniqueEntity(fields: ['name'], errorPath: 'name', ignoreNull: true)]
+#[ApiResource(
+    operations: [
+        new Post(),
+        new Get(),
+        new GetCollection(),
+        new Patch(),
+        new Delete(),
+    ],
+    normalizationContext: ['groups' => ['school:read']],
+    denormalizationContext: ['groups' => ['school:write']],
+    order: ['name' => 'ASC']
+)]
+#[ApiFilter(filterClass: SearchFilter::class, properties: [
+    'name' => 'ipartial',
+])]
 class School
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(groups: ['school:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['school:read', 'school:write'])]
+    #[Assert\NotBlank]
     private ?string $name = null;
 
     /**
