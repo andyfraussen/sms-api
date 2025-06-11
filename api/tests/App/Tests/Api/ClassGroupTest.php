@@ -79,4 +79,67 @@ class ClassGroupTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains(['@type' => 'ConstraintViolation']);
     }
+
+    public function testPatchClassGroup(): void
+    {
+        $client = self::createClient();
+
+        $school = SchoolFactory::createOne();
+        $grade = GradeFactory::createOne(['school' => $school]);
+        $classGroup = ClassGroupFactory::createOne([
+            'name' => 'Old Name',
+            'grade' => $grade,
+            'school' => $school
+        ]);
+
+        $iri = $this->findIriBy(ClassGroup::class, ['name' => 'Old Name']);
+
+        $client->request('PATCH', $iri, [
+            'json' => ['name' => 'New Name'],
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains(['name' => 'New Name']);
+    }
+
+    public function testDeleteClassGroup(): void
+    {
+        $client = self::createClient();
+
+        $school = SchoolFactory::createOne();
+        $grade = GradeFactory::createOne(['school' => $school]);
+        $classGroup = ClassGroupFactory::createOne([
+            'name' => 'Delete Me',
+            'grade' => $grade,
+            'school' => $school
+        ]);
+
+        $iri = $this->findIriBy(ClassGroup::class, ['name' => 'Delete Me']);
+
+        $client->request('DELETE', $iri);
+        $this->assertResponseStatusCodeSame(204);
+
+        $client->request('GET', $iri, [
+            'headers' => ['Accept' => 'application/ld+json'],
+        ]);
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testInvalidGradeOrSchool(): void
+    {
+        $client = self::createClient();
+
+        $client->request('POST', '/class_groups', [
+            'json' => [
+                'name' => 'Invalid Links',
+                'school' => '/schools/999999',
+                'grade' => '/grades/999999'
+            ],
+            'headers' => ['Content-Type' => 'application/ld+json'],
+        ]);
+
+        $this->assertResponseStatusCodeSame(400);
+    }
 }
