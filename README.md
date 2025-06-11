@@ -1,133 +1,47 @@
-# Laravel API
+<h1 align="center"><a href="https://api-platform.com"><img src="https://api-platform.com/images/logos/Logo_Circle%20webby%20text%20blue.png" alt="API Platform" width="250" height="250"></a></h1>
 
-This project is a Laravel-based API that handles operations related to schools, students, attendances, and assessments. It is secured using Sanctum for API authentication and supports versioning under the `/api/v1` prefix.
+API Platform is a next-generation web framework designed to easily create API-first projects without compromising extensibility
+and flexibility:
 
-## Table of Contents
+* Design your own data model as plain old PHP classes or [**import an existing ontology**](https://api-platform.com/docs/schema-generator).
+* **Expose in minutes a hypermedia REST or a GraphQL API** with pagination, data validation, access control, relation embedding,
+  filters, and error handling...
+* Benefit from Content Negotiation: [GraphQL](https://api-platform.com/docs/core/graphql/), [JSON-LD](https://json-ld.org), [Hydra](https://hydra-cg.com),
+  [HAL](https://github.com/mikekelly/hal_specification/blob/master/hal_specification.md), [JSON:API](https://jsonapi.org/), [YAML](https://yaml.org/), [JSON](https://www.json.org/), [XML](https://www.w3.org/XML/) and [CSV](https://www.ietf.org/rfc/rfc4180.txt) are supported out of the box.
+* Enjoy the **beautiful automatically generated API documentation** ([OpenAPI](https://api-platform.com/docs/core/openapi/)).
+* Add [**a convenient Material Design administration interface**](https://api-platform.com/docs/admin) built with [React](https://reactjs.org/)
+  without writing a line of code.
+* **Scaffold fully functional Progressive-Web-Apps and mobile apps** built with [Next.js](https://api-platform.com/docs/client-generator/nextjs/) (React),
+[Nuxt.js](https://api-platform.com/docs/client-generator/nuxtjs/) (Vue.js) or [React Native](https://api-platform.com/docs/client-generator/react-native/)
+thanks to [the client generator](https://api-platform.com/docs/client-generator/) (a Vue.js generator is also available).
+* Install a development environment and deploy your project in production using **[Docker](https://api-platform.com/docs/distribution)**
+and [Kubernetes](https://api-platform.com/docs/deployment/kubernetes).
+* Easily add **[OAuth](https://oauth.net/) authentication**.
+* Create specs and tests with **[a developer friendly API testing tool](https://api-platform.com/docs/distribution/testing/)**.
 
-- [Getting Started](#getting-started)
-- [Authentication](#authentication)
-- [API Endpoints](#api-endpoints)
-  - [Schools](#schools)
-  - [Students](#students)
-  - [Attendances](#attendances)
-  - [Assessments](#assessments)
-- [Validation](#validation)
-- [Running the Application](#running-the-application)
-- [Additional Information](#additional-information)
+The official project documentation is available **[on the API Platform website](https://api-platform.com)**.
 
-## Getting Started
+API Platform embraces open web standards and the
+[Linked Data](https://www.w3.org/standards/semanticweb/data) movement. Your API will automatically expose structured data.
+It means that your API Platform application is usable **out of the box** with technologies of
+the semantic web.
 
-1. **Clone the repository:**
-   ```bash
-   git clone <REPO_URL>
-   cd sms-api
-   ```
+It also means that **your SEO will be improved** because **[Google leverages these formats](https://developers.google.com/search/docs/guides/intro-structured-data)**.
 
-2. **Install dependencies:**
-   ```bash
-   composer install
-   npm install
-   ```
+Last but not least, the server component of API Platform is built on top of the [Symfony](https://symfony.com) framework,
+while client components leverage [React](https://reactjs.org/) ([Vue.js](https://vuejs.org/) flavors are also available).
+It means that you can:
 
-3. **Configure your environment:**
-   - Copy the `.env.example` file to `.env` and update your environment variables (database connection, mail settings, etc.).
-   - Generate an application key:
-     ```bash
-     php artisan key:generate
-     ```
+* Use **thousands of Symfony bundles and React components** with API Platform.
+* Integrate API Platform in **any existing Symfony, React, or Vue application**.
+* Reuse **all your Symfony and JavaScript skills**, and benefit from the incredible amount of documentation available.
+* Enjoy the popular [Doctrine ORM](https://www.doctrine-project.org/projects/orm.html) (used by default, but fully optional:
+  you can use the data provider you want, including but not limited to MongoDB and Elasticsearch)
 
-## Authentication
+## Install
 
-- The API uses Laravel Sanctum to secure routes.
-- Every endpoint under `/api/v1` requires authentication via Sanctum middleware.
-- Clients must include an API token in the request header (`Authorization: Bearer <TOKEN>`).
+[Read the official "Getting Started" guide](https://api-platform.com/docs/distribution/).
 
-## API Endpoints
+## Credits
 
-All API endpoints are grouped under the `/api/v1` prefix.
-
-### Schools
-
-Resource endpoints for school entities are available:
-
-- **GET** `/api/v1/schools` - List all schools.
-- **POST** `/api/v1/schools` - Create a new school.
-- **GET** `/api/v1/schools/{id}` - Get details of a specific school.
-- **PUT/PATCH** `/api/v1/schools/{id}` - Update a school.
-- **DELETE** `/api/v1/schools/{id}` - Delete a school.
-
-### Students
-
-Resource endpoints for student entities include additional routes:
-
-- **GET** `/api/v1/students` - List all students.
-- **GET** `/api/v1/students/trashed` - List all soft-deleted (trashed) students.
-- **POST** `/api/v1/students` - Create a new student.
-- **GET** `/api/v1/students/{id}` - Get details of a specific student.
-- **PUT/PATCH** `/api/v1/students/{id}` - Update a student.
-- **DELETE** `/api/v1/students/{id}` - Soft-delete a student.
-- **POST** `/api/v1/students/{id}/restore` - Restore a soft-deleted student.
-- **DELETE** `/api/v1/students/{id}/force` - Permanently delete a student.
-
-### Attendances
-
-Resource endpoints for manage attendance records:
-
-- **GET** `/api/v1/attendances` - List all attendance records.
-- **POST** `/api/v1/attendances` - Create a new attendance record.
-- **GET** `/api/v1/attendances/{id}` - Get a specific attendance record.
-- **PUT/PATCH** `/api/v1/attendances/{id}` - Update an attendance record.
-- **DELETE** `/api/v1/attendances/{id}` - Delete an attendance record.
-
-### Assessments
-
-The API provides endpoints for handling assessments with full CRUD support.
-
-- **GET** `/api/v1/assessments` - List all assessments records.
-- **POST** `/api/v1/assessments` - Create a new assessments record.
-- **GET** `/api/v1/assessments/{id}` - Get a specific assessments record.
-- **PUT/PATCH** `/api/v1/assessments/{id}` - Update an assessments record.
-- **DELETE** `/api/v1/assessments/{id}` - Delete an assessments record.
-
-## Validation
-
-This API uses dedicated Form Request classes for validating data:
-
-- **StoreAssessmentRequest** - Validates the data required for creating a new assessment.
-- **UpdateAssessmentRequest** - Validates the data for updating an existing assessment. Fields are optional and only validated when provided.
-
-## Running the Application
-
-To run the application locally:
-
-1. **Start the development server:**
-   ```bash
-   php artisan serve
-   ```
-
-2. **Handle database migrations:**
-   ```bash
-   php artisan migrate
-   ```
-
-3. **Queue Connection:**
-   The application uses the database queue driver. To process queued jobs, run:
-   ```bash
-   php artisan queue:work
-   ```
-
-## Additional Information
-
-- **Testing:**  
-  The project uses the Pest PHP testing framework. You can run tests using:
-  ```bash
-  php artisan test
-  ```
-
-- **Additional Packages:**  
-  The application includes several third-party packages such as Guzzle for HTTP requests, Faker for generating test data, Monolog for logging, and more. Refer to the `composer.json` for a complete list of dependencies.
-
-- **API Versioning:**  
-  Endpoints are versioned under `v1`. Plan for future backward-compatible changes by maintaining versioned routes.
-
-For any questions or issues, please refer to the project's documentation or open an issue on the repository.
+Created by [Kévin Dunglas](https://dunglas.fr). Commercial support is available at [Les-Tilleuls.coop](https://les-tilleuls.coop).

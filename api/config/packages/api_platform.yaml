@@ -1,0 +1,27 @@
+api_platform:
+    title: SMS API
+    version: 1.0.0
+    show_webby: false
+    formats:
+        jsonld: ['application/ld+json']
+    defaults:
+        stateless: true
+        cache_headers:
+            max_age: 0
+            shared_max_age: 0
+            vary: ['Content-Type', 'Authorization', 'Origin']
+        extra_properties:
+            rfc_7807_compliant_errors: true
+        pagination_client_items_per_page: true
+        pagination_client_enabled: true
+        pagination_maximum_items_per_page: 25
+    use_symfony_listeners: true
+    mercure:
+        include_type: true
+    swagger:
+        api_keys:
+            JWT:
+                name: Authorization
+                type: header
+    serializer:
+        hydra_prefix: true
