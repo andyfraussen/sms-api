@@ -2,9 +2,9 @@
 
 namespace App\Entity;
 
-use App\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\InheritanceType('JOINED')]
@@ -18,11 +18,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class Person
 {
     #[ORM\OneToOne(inversedBy: 'person', cascade: ['persist', 'remove'])]
+    #[Groups(['teacher:read', 'teacher:write'])]
+    #[Assert\Valid]
     private ?User $user = null;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['teacher:read'])]
     private ?int $id = null;
 
     public function getId(): ?int
@@ -38,6 +41,10 @@ class Person
     public function setUser(?User $user): static
     {
         $this->user = $user;
+
+        if ($user && $user->getPerson() !== $this) {
+            $user->setPerson($this);
+        }
 
         return $this;
     }

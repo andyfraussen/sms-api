@@ -7,22 +7,29 @@ use App\Repository\TeacherRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: TeacherRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['teacher:read']]
+    ,denormalizationContext: ['groups' => ['teacher:write']],
+    validationContext: ['groups' => ['Default']]
+)]
 class Teacher extends Person
 {
     /**
      * @var Collection<int, School>
      */
     #[ORM\ManyToMany(targetEntity: School::class, inversedBy: 'teachers')]
+    #[Groups(['teacher:read', 'teacher:write'])]
     private Collection $schools;
 
     /**
      * @var Collection<int, ClassGroup>
      */
     #[ORM\ManyToMany(targetEntity: ClassGroup::class, inversedBy: 'teachers')]
-    private Collection $classes;
+    #[Groups(['teacher:read', 'teacher:write'])]
+    private Collection $classGroups;
 
     /**
      * @var Collection<int, Subject>
@@ -33,7 +40,7 @@ class Teacher extends Person
     public function __construct()
     {
         $this->schools = new ArrayCollection();
-        $this->classes = new ArrayCollection();
+        $this->classGroups = new ArrayCollection();
         $this->subjects = new ArrayCollection();
     }
 
@@ -64,23 +71,23 @@ class Teacher extends Person
     /**
      * @return Collection<int, ClassGroup>
      */
-    public function getClasses(): Collection
+    public function getClassGroups(): Collection
     {
-        return $this->classes;
+        return $this->classGroups;
     }
 
-    public function addClass(ClassGroup $class): static
+    public function addClassGroup(ClassGroup $class): static
     {
-        if (!$this->classes->contains($class)) {
-            $this->classes->add($class);
+        if (!$this->classGroups->contains($class)) {
+            $this->classGroups->add($class);
         }
 
         return $this;
     }
 
-    public function removeClass(ClassGroup $class): static
+    public function removeClassGroup(ClassGroup $class): static
     {
-        $this->classes->removeElement($class);
+        $this->classGroups->removeElement($class);
 
         return $this;
     }
