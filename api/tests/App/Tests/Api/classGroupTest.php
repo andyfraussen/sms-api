@@ -5,9 +5,11 @@ namespace App\Tests\Api;
 use App\Entity\ClassGroup;
 use App\Entity\Grade;
 use App\Entity\School;
+use App\Entity\Subject;
 use App\Factory\ClassGroupFactory;
 use App\Factory\SchoolFactory;
 use App\Factory\GradeFactory;
+use App\Factory\SubjectFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -112,5 +114,60 @@ class classGroupTest extends CustomApiTest
         ]);
 
         $this->assertResponseStatusCodeSame(400);
+    }
+
+    public function testCreateWithSubjects(): void
+    {
+        $school = SchoolFactory::createOne();
+        $grade = GradeFactory::createOne(['school' => $school]);
+        $subject = SubjectFactory::createOne();
+        $classGroup = ClassGroupFactory::createOne([
+            'name' => 'Class Alpha',
+            'school' => $school,
+            'grade' => $grade,
+        ]);
+
+        $classGroupIri = $this->findIriBy(ClassGroup::class, ['name' => $classGroup->getName()]);
+        $subjectIri = $this->findIriBy(Subject::class, ['name' => $subject->getName()]);
+
+        $this->makeRequest('PATCH', $classGroupIri, [
+            'subjects' => [$subjectIri],
+        ]);
+
+        $data = $this->makeRequest('GET', $classGroupIri)->toArray();
+
+        $this->assertArrayHasKey('subjects', $data);
+        $this->assertContains($subjectIri, $data['subjects']);
+    }
+
+    public function testDeleteSubjects(): void
+    {
+        $school = SchoolFactory::createOne();
+        $grade = GradeFactory::createOne(['school' => $school]);
+        $subject = SubjectFactory::createOne();
+        $classGroup = ClassGroupFactory::createOne([
+            'name' => 'Class Alpha',
+            'school' => $school,
+            'grade' => $grade,
+        ]);
+
+        $classGroupIri = $this->findIriBy(ClassGroup::class, ['name' => $classGroup->getName()]);
+        $subjectIri = $this->findIriBy(Subject::class, ['name' => $subject->getName()]);
+
+        $this->makeRequest('PATCH', $classGroupIri, [
+            'subjects' => [$subjectIri],
+        ]);
+
+        $data = $this->makeRequest('GET', $classGroupIri)->toArray();
+
+        $this->assertArrayHasKey('subjects', $data);
+        $this->assertContains($subjectIri, $data['subjects']);
+
+        $data = $this->makeRequest('PATCH', $classGroupIri, [
+            'subjects' => [],
+        ])->toArray();
+
+        $this->assertArrayHasKey('subjects', $data);
+        $this->assertEmpty($data['subjects']);
     }
 }
