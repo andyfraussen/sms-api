@@ -317,9 +317,11 @@
       <path value="$PROJECT_DIR$/api/vendor/fakerphp/faker" />
       <path value="$PROJECT_DIR$/api/vendor/zenstruck/foundry" />
       <path value="$PROJECT_DIR$/api/vendor/zenstruck/assert" />
+      <path value="$PROJECT_DIR$/api/vendor/lcobucci/clock" />
+      <path value="$PROJECT_DIR$/api/vendor/lexik/jwt-authentication-bundle" />
     </include_path>
   </component>
-  <component name="PhpProjectSharedConfiguration" php_language_level="8.2" />
+  <component name="PhpProjectSharedConfiguration" php_language_level="8.4" />
   <component name="PhpStan">
     <PhpStan_settings>
       <phpstan_by_interpreter asDefaultInterpreter="true" interpreter_id="810ed308-6c1e-4942-b235-b886abadc077" timeout="60000" />
