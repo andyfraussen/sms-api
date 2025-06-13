@@ -3,14 +3,9 @@
 namespace App\Tests\Api;
 
 use App\Entity\ClassGroup;
-use App\Entity\Subject;
-use App\Entity\Teacher;
-use App\Entity\User;
+use App\Entity\School;
 use App\Factory\ClassGroupFactory;
-use App\Factory\GradeFactory;
 use App\Factory\SchoolFactory;
-use App\Factory\SubjectFactory;
-use App\Factory\UserFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -92,7 +87,7 @@ class TeacherTest extends CustomApiTest
     public function testAssignTeacherToSchool(): void
     {
         $school = SchoolFactory::createOne();
-        $schoolIri = $this->findIriBy(\App\Entity\School::class, ['id' => $school->getId()]);
+        $schoolIri = $this->findIriBy(School::class, ['id' => $school->getId()]);
 
         $response = $this->makeRequest('POST', '/teachers', [
             'user' => [
@@ -112,7 +107,7 @@ class TeacherTest extends CustomApiTest
     public function testAssignTeacherToClassGroup(): void
     {
         $classGroup = ClassGroupFactory::createOne();
-        $classGroupIri = $this->findIriBy(\App\Entity\ClassGroup::class, ['id' => $classGroup->getId()]);
+        $classGroupIri = $this->findIriBy(ClassGroup::class, ['id' => $classGroup->getId()]);
 
         $response = $this->makeRequest('POST', '/teachers', [
             'user' => [
@@ -127,6 +122,43 @@ class TeacherTest extends CustomApiTest
         $data = $response->toArray();
         $this->assertArrayHasKey('classGroups', $data);
         $this->assertContains($classGroupIri, $data['classGroups']);
+    }
+
+    public function testAssignMultipleTeacherToClassGroup(): void
+    {
+        $classGroup = ClassGroupFactory::createOne();
+        $classGroupIri = $this->findIriBy(ClassGroup::class, ['id' => $classGroup->getId()]);
+
+
+        $this->makeRequest('POST', '/teachers', [
+            'user' => [
+                'email' => 'teacher1@email.com',
+                'password' => 'password',
+            ],
+            'classGroups' => [$classGroupIri],
+        ]);
+        $this->assertResponseStatusCodeSame(201);
+
+
+        $this->makeRequest('POST', '/teachers', [
+            'user' => [
+                'email' => 'teache2@email.com',
+                'password' => 'password',
+            ],
+            'classGroups' => [$classGroupIri],
+        ]);
+        $this->assertResponseStatusCodeSame(201);
+
+
+        $response = $this->makeRequest('GET', '/teachers?user.email[]=teacher1@email.com&user.email[]=teache2@email.com');
+        $this->assertResponseStatusCodeSame(200);
+
+        $data = $response->toArray();
+
+        foreach ($data['hydra:member'] ?? [] as $teacher) {
+            $this->assertArrayHasKey('classGroups', $teacher, 'Teacher does not have classGroups key');
+            $this->assertContains($classGroupIri, $teacher['classGroups'], 'classGroup IRI not found in teacher classGroups');
+        }
     }
 
 }
