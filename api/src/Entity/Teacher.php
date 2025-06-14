@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\TeacherRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -15,6 +17,9 @@ use Symfony\Component\Serializer\Attribute\Groups;
     ,denormalizationContext: ['groups' => ['teacher:write']],
     validationContext: ['groups' => ['Default']]
 )]
+#[ApiFilter(filterClass: SearchFilter::class, properties: [
+    'user.email' => 'exact',
+])]
 class Teacher extends Person
 {
     /**
@@ -35,6 +40,7 @@ class Teacher extends Person
      * @var Collection<int, Subject>
      */
     #[ORM\ManyToMany(targetEntity: Subject::class, inversedBy: 'teachers')]
+    #[Groups(['teacher:read', 'teacher:write'])]
     private Collection $subjects;
 
     public function __construct()

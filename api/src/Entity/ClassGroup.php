@@ -29,7 +29,7 @@ class ClassGroup
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'classGroups')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Groups(['class_group:read', 'class_group:write'])]
     private ?Grade $grade = null;
 
@@ -47,7 +47,8 @@ class ClassGroup
     /**
      * @var Collection<int, Teacher>
      */
-    #[ORM\ManyToMany(targetEntity: Teacher::class, mappedBy: 'classes')]
+    #[ORM\ManyToMany(targetEntity: Teacher::class, mappedBy: 'classGroups')]
+    #[Groups(['class_group:read', 'class_group:write'])]
     private Collection $teachers;
 
     /**
@@ -154,7 +155,7 @@ class ClassGroup
     {
         if (!$this->teachers->contains($teacher)) {
             $this->teachers->add($teacher);
-            $teacher->addClass($this);
+            $teacher->addClassGroup($this);
         }
 
         return $this;
@@ -163,7 +164,7 @@ class ClassGroup
     public function removeTeacher(Teacher $teacher): static
     {
         if ($this->teachers->removeElement($teacher)) {
-            $teacher->removeClass($this);
+            $teacher->removeClassGroup($this);
         }
 
         return $this;
