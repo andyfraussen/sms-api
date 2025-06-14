@@ -29,7 +29,7 @@ class ClassGroup
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'classGroups')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Groups(['class_group:read', 'class_group:write'])]
     private ?Grade $grade = null;
 

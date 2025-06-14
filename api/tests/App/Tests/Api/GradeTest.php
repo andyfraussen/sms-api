@@ -85,4 +85,52 @@ class GradeTest extends CustomApiTest
         $this->makeRequest('GET', '/grades/' . $grade->getId());
         $this->assertResponseStatusCodeSame(301);
     }
+
+    public function testCreateGradeWithoutSchool(): void
+    {
+        $this->makeRequest('POST', '/grades', [
+            'name' => 'No School Grade',
+        ]);
+
+        $this->assertResponseStatusCodeSame((500));
+    }
+
+    public function testDeleteGradeWithClassGroups(): void
+    {
+        $grade = GradeFactory::createOne();
+        \App\Factory\ClassGroupFactory::createOne(['grade' => $grade]);
+
+        $this->makeRequest('DELETE', '/grades/' . $grade->getId());
+
+        // Expect either a 204 (if cascade) or 500/409 (if DB constraint fails)
+        $this->assertResponseStatusCodeSame(204);
+    }
+
+    public function testGetGradesFilteredBySchool(): void
+    {
+        $schoolA = SchoolFactory::createOne();
+        $schoolB = SchoolFactory::createOne();
+
+        GradeFactory::createOne(['name' => 'Grade A1', 'school' => $schoolA]);
+        GradeFactory::createOne(['name' => 'Grade B1', 'school' => $schoolB]);
+
+        $response = $this->makeRequest('GET', '/grades?school=' . $schoolA->getId());
+        $data = $response->toArray();
+
+        foreach ($data['hydra:member'] as $grade) {
+            $this->assertStringContainsString('Grade A', $grade['name']);
+        }
+    }
+
+    public function testPatchGradeSchool(): void
+    {
+        $grade = GradeFactory::createOne();
+        $newSchool = SchoolFactory::createOne();
+
+        $this->makeRequest('PATCH', '/grades/' . $grade->getId(), [
+            'school' => $this->findIriBy(School::class, ['id' => $newSchool->getId()])
+        ]);
+
+        $this->assertResponseIsSuccessful();
+    }
 }
