@@ -40,6 +40,7 @@ class Teacher extends Person
      * @var Collection<int, Subject>
      */
     #[ORM\ManyToMany(targetEntity: Subject::class, inversedBy: 'teachers')]
+    #[Groups(['teacher:read', 'teacher:write'])]
     private Collection $subjects;
 
     public function __construct()
