@@ -5,10 +5,9 @@
     use App\Entity\ClassGroup;
     use App\Entity\Grade;
     use App\Entity\School;
-    use App\Entity\Teacher;
     use App\Factory\ClassGroupFactory;
-    use App\Factory\SchoolFactory;
     use App\Factory\GradeFactory;
+    use App\Factory\SchoolFactory;
     use App\Factory\TeacherFactory;
     use Zenstruck\Foundry\Test\Factories;
     use Zenstruck\Foundry\Test\ResetDatabase;
